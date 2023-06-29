@@ -1,37 +1,30 @@
+// Import dependencies
 const express = require('express');
-const bodyParser = require('body-parser');
+const session = require('express-session');
+const exphbs = require('express-handlebars');
+const path = require('path');
 
+// Create the Express app
 const app = express();
-const port = 3000; // Change this to your desired port number
+const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Routes
-app.get('/', (req, res) => {
-  res.send('Hello, World!');
-});
+// Session middleware
+app.use(session({
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: true
+}));
 
-app.get('/about', (req, res) => {
-  res.send('This is the about page.');
-});
-
-app.post('/api/users', (req, res) => {
-  const { name, email } = req.body;
-  // Process the user data
-  // ...
-
-  res.json({ success: true, message: 'User created successfully.' });
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Something broke!');
-});
+// View engine
+app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
+app.set('view engine', 'handlebars');
 
 // Start the server
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+app.listen(PORT, () => {
+  console.log(`Server listening on PORT ${PORT}`);
 });
